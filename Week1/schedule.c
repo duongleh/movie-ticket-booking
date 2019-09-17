@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#define MAX 100
 
 typedef struct time_table
 {
@@ -14,23 +15,14 @@ typedef struct time_table
     char room[10];
 } time_table;
 
-int readFile(char courses[100][100], char fileName[20]);
-void processData(struct time_table *timeTable, char courses[100][100], int size);
-void printTimeTable(struct time_table *timeTable, int size)
-{
-    char am_pm[10];
-    printf("|%-10s|%-40s|%-10s|%-10s|%-8s|%-20s|%-10s\n", "Code", "Course", "Week Day", "AM / PM", "Period", "Week", "Room");
-    for (int i = 0; i < size; i++)
-    {
-        strcpy(am_pm, timeTable[i].am_pm == 1 ? "Morning" : "Afternoon");
-        printf("|%-10s|%-40s|%-10d|%-10s|%d - %-4d|%-20s|%-10s\n", timeTable[i].code, timeTable[i].course, timeTable[i].week_day, am_pm,
-               timeTable[i].period_start, timeTable[i].period_end, timeTable[i].week, timeTable[i].room);
-    }
-}
+int readFile(char courses[MAX][MAX], char fileName[20]);
+void processData(time_table *timeTable, char courses[MAX][MAX], int size);
+void printTimeTable(time_table *timeTable, int size);
+void printSchedule(time_table *timeTable, int size);
 
 int main()
 {
-    char courses[100][100];
+    char courses[MAX][MAX];
     char fileName[] = "schedule.txt";
     int size;
 
@@ -38,11 +30,13 @@ int main()
     time_table *timeTable = malloc(size * sizeof(time_table));
     processData(timeTable, courses, size);
     printTimeTable(timeTable, size);
+    printSchedule(timeTable, size);
+
     free(timeTable);
     return 0;
 }
 
-int readFile(char courses[100][100], char fileName[20])
+int readFile(char courses[MAX][MAX], char fileName[20])
 {
     FILE *fptr;
     int c, count = 0, i = 0;
@@ -77,9 +71,9 @@ int readFile(char courses[100][100], char fileName[20])
     return count;
 }
 
-void processData(struct time_table *timeTable, char courses[100][100], int size)
+void processData(time_table *timeTable, char courses[MAX][MAX], int size)
 {
-    char *token, *token2, course[100][100], detail[100][100];
+    char *token, *token2, course[MAX][MAX], detail[MAX][MAX];
     int i, j, k;
     for (i = 0; i < size; i++, j = 0, k = 1)
     {
@@ -120,5 +114,40 @@ void processData(struct time_table *timeTable, char courses[100][100], int size)
             strcat(timeTable[i].week, detail[j]);
         }
         strcpy(timeTable[i].room, detail[k - 1]);
+    }
+}
+
+void printTimeTable(time_table *timeTable, int size)
+{
+    char am_pm[10];
+    printf("|%-10s|%-40s|%-10s|%-10s|%-8s|%-20s|%-10s\n", "Code", "Course", "Week Day", "AM / PM", "Period", "Week", "Room");
+    for (int i = 0; i < size; i++)
+    {
+        strcpy(am_pm, timeTable[i].am_pm == 1 ? "Morning" : "Afternoon");
+        printf("|%-10s|%-40s|%-10d|%-10s|%d - %-4d|%-20s|%-10s\n", timeTable[i].code, timeTable[i].course, timeTable[i].week_day,
+               am_pm, timeTable[i].period_start, timeTable[i].period_end, timeTable[i].week, timeTable[i].room);
+    }
+}
+
+void printSchedule(time_table *timeTable, int size)
+{
+    char schedule[12][5][10] = {""};
+    int am_pm, i, j;
+
+    printf("==================================================================================================\n");
+    printf("%-2s|%-10s|%-10s|%-10s|%-10s|%-10s\n", "", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday");
+    for (i = 0; i < size; i++)
+    {
+        am_pm = timeTable[i].am_pm == 1 ? 0 : 6;
+        for (j = timeTable[i].period_start + am_pm - 1; j < timeTable[i].period_end + am_pm; j++)
+        {
+            strcpy(schedule[j][timeTable[i].week_day - 2], timeTable[i].room);
+        }
+    }
+
+    for (i = 0; i < 12; i++)
+    {
+        printf("%-2d|%-10s|%-10s|%-10s|%-10s|%-10s\n", i + 1, schedule[i][0], schedule[i][1],
+               schedule[i][2], schedule[i][3], schedule[i][4]);
     }
 }
