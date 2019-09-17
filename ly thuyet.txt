@@ -1,0 +1,3 @@
+ip + port = socket
+udp: ko có cơ chế thông báo lỗi, chỉ cần dùng 1 socket có thể giao tiếp với nhiều bên
+tcp: 1 tiến trình phục vụ 1 máy, phải lập ứng dụng đa tiến trình (multi-thread)
