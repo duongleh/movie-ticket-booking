@@ -5,7 +5,7 @@
 typedef struct time_table
 {
     char code[10];
-    char course[50];
+    char course[40];
     int week_day;
     int am_pm;
     int period_start;
@@ -15,55 +15,16 @@ typedef struct time_table
 } time_table;
 
 int readFile(char courses[100][100], char fileName[20]);
-void processData(struct time_table *timeTable, char courses[100][100], int size)
+void processData(struct time_table *timeTable, char courses[100][100], int size);
+void printTimeTable(struct time_table *timeTable, int size)
 {
-    char *token, course[100][100], detail[100][100];
-    int i, j, k;
-    for (i = 0; i < size; i++, j = 0, k = 1)
+    char am_pm[10];
+    printf("|%-10s|%-40s|%-10s|%-10s|%-8s|%-20s|%-10s\n", "Code", "Course", "Week Day", "AM / PM", "Period", "Week", "Room");
+    for (int i = 0; i < size; i++)
     {
-        // j = 0;
-        // k = 1;
-
-        token = strtok(courses[i], " ");
-        while (token != NULL)
-        {
-            strcpy(course[j++], token);
-            token = strtok(NULL, " ");
-        }
-        // printf("%s\n", course[j - 1]);
-
-        strcpy(timeTable[i].code, course[0]);
-        strcpy(timeTable[i].course, course[1]);
-
-        while (++k != j - 1)
-        {
-            // printf("%s\n", course[k]);
-            strcat(timeTable[i].course, " ");
-            strcat(timeTable[i].course, course[k]);
-        }
-
-        // printf("%s\n", timeTable[i].course);
-        k = 0;
-        token = strtok(courses[j - 1], ",");
-        while (token != NULL)
-        {
-            strcpy(detail[k++], token);
-            token = strtok(NULL, ",");
-        }
-
-        timeTable[i].week_day = detail[1][0];
-        timeTable[i].am_pm = detail[1][1];
-        timeTable[i].period_start = detail[1][2];
-        timeTable[i].period_end = detail[2][2];
-        strcpy(timeTable[i].week, detail[3]);
-        j = 3;
-        while (++j != k - 1)
-        {
-            strcat(timeTable[i].week, ", ");
-            strcat(timeTable[i].week, detail[j]);
-        }
-
-        strcpy(timeTable[i].room, detail[k - 1]);
+        strcpy(am_pm, timeTable[i].am_pm == 1 ? "Morning" : "Afternoon");
+        printf("|%-10s|%-40s|%-10d|%-10s|%d - %-4d|%-20s|%-10s\n", timeTable[i].code, timeTable[i].course, timeTable[i].week_day, am_pm,
+               timeTable[i].period_start, timeTable[i].period_end, timeTable[i].week, timeTable[i].room);
     }
 }
 
@@ -74,12 +35,9 @@ int main()
     int size;
 
     size = readFile(courses, fileName);
-    // for (int i = 0; i < size; i++)
-    // {
-    //     printf("%s\n", courses[i]);
-    // }
     time_table *timeTable = malloc(size * sizeof(time_table));
     processData(timeTable, courses, size);
+    printTimeTable(timeTable, size);
     free(timeTable);
     return 0;
 }
@@ -117,4 +75,50 @@ int readFile(char courses[100][100], char fileName[20])
 
     fclose(fptr);
     return count;
+}
+
+void processData(struct time_table *timeTable, char courses[100][100], int size)
+{
+    char *token, *token2, course[100][100], detail[100][100];
+    int i, j, k;
+    for (i = 0; i < size; i++, j = 0, k = 1)
+    {
+        token = strtok(courses[i], " ");
+        while (token != NULL)
+        {
+            strcpy(course[j++], token);
+            token = strtok(NULL, " ");
+        }
+
+        strcpy(timeTable[i].code, course[0]);
+        strcpy(timeTable[i].course, course[1]);
+
+        while (++k != j - 1)
+        {
+            strcat(timeTable[i].course, " ");
+            strcat(timeTable[i].course, course[k]);
+        }
+
+        k = 0;
+        token2 = strtok(course[j - 1], ",");
+        while (token2 != NULL)
+        {
+            strcpy(detail[k++], token2);
+            token2 = strtok(NULL, ",");
+        }
+
+        timeTable[i].week_day = detail[1][0] - '0';
+        timeTable[i].am_pm = detail[1][1] - '0';
+        timeTable[i].period_start = detail[1][2] - '0';
+        timeTable[i].period_end = detail[2][2] - '0';
+        strcpy(timeTable[i].week, detail[3]);
+        j = 3;
+
+        while (++j != k - 1)
+        {
+            strcat(timeTable[i].week, ", ");
+            strcat(timeTable[i].week, detail[j]);
+        }
+        strcpy(timeTable[i].room, detail[k - 1]);
+    }
 }
