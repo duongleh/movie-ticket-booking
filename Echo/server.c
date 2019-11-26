@@ -4,8 +4,8 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <string.h>
-#include <unistd.h> // for close
 #include <arpa/inet.h>
+#include <unistd.h> // for close
 
 #define MAXLINE 4096   /*max text line length*/
 #define SERV_PORT 3000 /*port*/
