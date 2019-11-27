@@ -3,8 +3,8 @@
 typedef struct movie
 {
     int num;
-    char id[10];
+    int id[10];
     char name[256];
-    int name_len;
+    int name_len[10];
 } movie;
 #endif

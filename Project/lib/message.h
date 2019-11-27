@@ -7,13 +7,14 @@
 #include "time.h"
 #include "seat.h"
 #include "pay.h"
+#include "order.h"
 
 enum
 {
     SUCCESS,
     FAILURE,
-    SIGNUP,
     LOGIN,
+    SIGNUP,
     BOOKING,
     ORDERS,
     MOVIE,
@@ -38,6 +39,7 @@ typedef struct message
     time time;
     seat seat;
     pay pay;
+    order order;
 } message;
 
 #endif

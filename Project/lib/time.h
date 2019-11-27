@@ -3,7 +3,7 @@
 typedef struct time
 {
     int num;
-    char id[10];
+    int id[10];
     long list[256];
 } time;
 #endif

@@ -1,6 +1,6 @@
-#ifndef SELECT_H
-#define SELECT_H
-typedef struct select
+#ifndef ORDER_H
+#define ORDER_H
+typedef struct order
 {
     char movie[20];
     int movie_id;
@@ -14,5 +14,5 @@ typedef struct select
     char card[20];
     int ccv;
     char valid_date[10];
-} select;
+} order;
 #endif
