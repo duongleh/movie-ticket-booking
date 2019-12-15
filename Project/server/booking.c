@@ -13,6 +13,5 @@ void sendListMovies(message *mess, int socketfd)
     strcpy(mess->movie.name, "FrozenAvengerITJoker");
     memcpy(mess->movie.name_len, name_len, sizeof name_len);
     mess->state = MOVIE;
-
     send(socketfd, mess, sizeof(message), 0);
 }

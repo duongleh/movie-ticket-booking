@@ -97,7 +97,8 @@ int main(int argc, char **argv)
                 case SIGNUP:
                     break;
                 case BOOKING:
-                    sendListMovies(&mess, socketfd);
+                    memset(&mess, 0, sizeof(mess));
+                    sendListMovies(&mess, connfd);
                     break;
                 case ORDERS:
                     break;

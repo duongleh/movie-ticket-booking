@@ -5,10 +5,15 @@
 
 void booking(message *mess, int socketfd)
 {
-    mess->state = LOGIN;
+    mess->state = BOOKING;
     send(socketfd, mess, sizeof(message), 0);
-    // recv(socketfd, mess, sizeof(message), 0);
-    // return mess->state;
+    recv(socketfd, mess, sizeof(message), 0);
+    printf("%s\n", mess->movie.name);
+    printf("%d\n", mess->movie.num);
+    for (int i = 0; i < mess->movie.num; i++)
+        printf("%d\n", mess->movie.name_len[i]);
+    for (int i = 0; i < mess->movie.num; i++)
+        printf("%d\n", mess->movie.id[i]);
 }
 
 void menuMovie(message *mess, int socketfd)

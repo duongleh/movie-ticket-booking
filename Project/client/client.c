@@ -76,9 +76,10 @@ int main(int argc, char **argv)
         {
             re = logIn(&mess, socketfd);
             if (re != SUCCESS)
-                printf("Login fail !\n");
+                printf("Login fail!\n\n");
 
         } while (re != SUCCESS);
+        printf("\nLogin successful!\n");
         menuMovie(&mess, socketfd);
         break;
     case 2:
