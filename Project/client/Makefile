@@ -4,8 +4,8 @@ LIBS =  -lm
 
 all: client
 
-client: client.o authen.o menuMovie.o
-	${CC} client.o authen.o menuMovie.o -o client
+client: client.o authen.o booking.o function.o
+	${CC} client.o authen.o booking.o function.o -o client
 
 client.o: client.c
 	${CC} ${CFLAGS} client.c
@@ -13,8 +13,11 @@ client.o: client.c
 authen.o: authen.c
 	${CC} ${CFLAGS} authen.c
 
-menuMovie.o: menuMovie.c
-	${CC} ${CFLAGS} menuMovie.c
+booking.o: booking.c
+	${CC} ${CFLAGS} booking.c
+
+function.o: function.c
+	${CC} ${CFLAGS} function.c
 
 clean:
 	rm -f *.o *~

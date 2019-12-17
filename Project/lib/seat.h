@@ -3,8 +3,10 @@
 typedef struct seat
 {
     int row;
-    int num_row;
+    int col;
     int id[100];
     int status[100];
+    int choice[100];
+    int numChoice;
 } seat;
 #endif

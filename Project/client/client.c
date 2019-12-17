@@ -8,7 +8,7 @@
 #include <unistd.h> // for close
 #include "../lib/message.h"
 #include "authen.h"
-#include "menuMovie.h"
+#include "booking.h"
 
 #define MAXLINE 4096   /*max text line length*/
 #define SERV_PORT 3000 /*port*/
@@ -80,7 +80,7 @@ int main(int argc, char **argv)
 
         } while (re != SUCCESS);
         printf("\nLogin successful!\n");
-        menuMovie(&mess, socketfd);
+        booking(&mess, socketfd);
         break;
     case 2:
 

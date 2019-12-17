@@ -4,6 +4,8 @@ typedef struct time
 {
     int num;
     int id[10];
-    long list[256];
+    char name[256];
+    int name_len[10];
+    int choice;
 } time;
 #endif

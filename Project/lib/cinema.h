@@ -6,5 +6,6 @@ typedef struct cinema
     int id[10];
     char name[256];
     int name_len[10];
+    int choice;
 } cinema;
 #endif

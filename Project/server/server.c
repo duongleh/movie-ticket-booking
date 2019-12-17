@@ -8,6 +8,7 @@
 #include <unistd.h> // for close
 #include "../lib/message.h"
 #include "booking.h"
+#include "authen.h"
 
 #define MAXLINE 4096   /*max text line length*/
 #define SERV_PORT 3000 /*port*/
@@ -66,7 +67,7 @@ int main(int argc, char **argv)
         {
             exit(1);
         }
-        printf("[+]Connection accepted from %s:%d\n", inet_ntoa(cliaddr.sin_addr), ntohs(cliaddr.sin_port));
+        printf("[+]%s:%d - Connection accepted\n", inet_ntoa(cliaddr.sin_addr), ntohs(cliaddr.sin_port));
 
         if ((childpid = fork()) == 0)
         {
@@ -89,30 +90,51 @@ int main(int argc, char **argv)
                 switch (mess.state)
                 {
                 case LOGIN:
-                    printf("%s - %s\n", mess.user.name, mess.user.password);
-                    memset(&mess, 0, sizeof(mess));
-                    mess.state = SUCCESS;
-                    send(connfd, &mess, n, 0);
+                    printf("[+]%s:%d - Request login from user %s\n", inet_ntoa(cliaddr.sin_addr), ntohs(cliaddr.sin_port), mess.user.name);
+                    logIn(&mess, connfd);
+                    printf("[+]%s:%d - Login successful\n", inet_ntoa(cliaddr.sin_addr), ntohs(cliaddr.sin_port));
                     break;
                 case SIGNUP:
                     break;
-                case BOOKING:
-                    memset(&mess, 0, sizeof(mess));
-                    sendListMovies(&mess, connfd);
-                    break;
                 case ORDERS:
                     break;
-                case SELECT_MOVIE:
+                case BOOKING:
+                    printf("[+]%s:%d - Request booking function\n", inet_ntoa(cliaddr.sin_addr), ntohs(cliaddr.sin_port));
+                    sendListMovies(&mess, connfd);
                     break;
-                case SELECT_CINEMA:
+                case MOVIE:
+                    printf("[+]%s:%d - Choose movie %d\n", inet_ntoa(cliaddr.sin_addr), ntohs(cliaddr.sin_port), mess.movie.choice);
+                    sendListCinemas(&mess, connfd);
                     break;
-                case SELECT_TIME:
+                case CINEMA:
+                    printf("[+]%s:%d - Choose cinema %d\n", inet_ntoa(cliaddr.sin_addr), ntohs(cliaddr.sin_port), mess.cinema.choice);
+                    sendListTimes(&mess, connfd);
                     break;
-                case SELECT_SEAT:
+                case TIME:
+                    printf("[+]%s:%d - Choose time %d\n", inet_ntoa(cliaddr.sin_addr), ntohs(cliaddr.sin_port), mess.time.choice);
+                    sendListSeats(&mess, connfd);
                     break;
-                case SELECT_PAY:
+                case SEAT:
+                    printf("[+]%s:%d - Choose seat(s)", inet_ntoa(cliaddr.sin_addr), ntohs(cliaddr.sin_port));
+                    for (int i = 0; i < mess.seat.numChoice; i++)
+                    {
+                        printf(" %d", mess.seat.choice[i]);
+                    }
+                    printf("\n");
+                    sendListPayments(&mess, connfd);
+                    break;
+                case PAY:
+                    printf("[+]%s:%d - Choose payment type %d\n", inet_ntoa(cliaddr.sin_addr), ntohs(cliaddr.sin_port), mess.pay.choice);
+                    if (mess.pay.choice == 2)
+                    {
+                        printf("Card Number: %s\n", mess.pay.card);
+                        printf("Date expire: %s\n", mess.pay.valid_date);
+                        printf("CCV: %d\n", mess.pay.ccv);
+                    }
                     break;
                 case CONFIRM:
+                    printf("[+]%s:%d - Confirm\n", inet_ntoa(cliaddr.sin_addr), ntohs(cliaddr.sin_port));
+                    confirmOrder(&mess, connfd);
                     break;
                 default:
                     break;

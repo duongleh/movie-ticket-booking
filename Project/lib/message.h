@@ -18,15 +18,10 @@ enum
     BOOKING,
     ORDERS,
     MOVIE,
-    SELECT_MOVIE,
     CINEMA,
-    SELECT_CINEMA,
     TIME,
-    SELECT_TIME,
     SEAT,
-    SELECT_SEAT,
     PAY,
-    SELECT_PAY,
     CONFIRM
 };
 
