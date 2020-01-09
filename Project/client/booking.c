@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <sys/socket.h>
 #include "../lib/message.h"
@@ -14,6 +15,8 @@ char selectedPayment[100];
 char card[100];
 char valid_date[100];
 int ccv;
+
+message ticket;
 
 void confirmOrder(message *mess, int socketfd)
 {
@@ -233,13 +236,26 @@ void selectMovie(message *mess, int socketfd)
     selectCinema(mess, socketfd);
 }
 
-void requestBooking(message *mess, int socketfd)
+void receiveMovie(message *mess, int socketfd)
 {
+    char pkg[256];
     memset(mess, 0, sizeof(message));
     mess->state = BOOKING;
     send(socketfd, mess, sizeof(message), 0);
-    recv(socketfd, mess, sizeof(message), 0);
-    selectMovie(mess, socketfd);
+    recv(socketfd, pkg, sizeof(pkg), 0);
+    ticket.movie.num = atoi(pkg);
+    for (int i = 0; i < ticket.movie.num; i++)
+    {
+        recv(socketfd, pkg, sizeof(pkg), 0);
+        strcpy(ticket.movie.name[i], pkg);
+        recv(socketfd, pkg, sizeof(pkg), 0);
+        ticket.movie.id[i] = atoi(pkg);
+    }
+    for (int i = 0; i < ticket.movie.num; i++)
+    {
+        printf("%d: %s\n", ticket.movie.id[i], ticket.movie.name[i]);
+    }
+    // selectMovie(mess, socketfd);
 }
 
 void booking(message *mess, int socketfd)
@@ -254,6 +270,6 @@ void booking(message *mess, int socketfd)
     } while (choice < 1 || choice > 2);
     if (choice == 1)
     {
-        requestBooking(mess, socketfd);
+        receiveMovie(mess, socketfd);
     }
 }

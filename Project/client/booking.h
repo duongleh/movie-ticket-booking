@@ -3,7 +3,7 @@
 #include "../lib/message.h"
 
 void booking(message *mess, int socketfd);
-void requestBooking(message *mess, int socketfd);
+void receiveMovie(message *mess, int socketfd);
 void selectMovie(message *mess, int socketfd);
 void selectCinema(message *mess, int socketfd);
 void selectTime(message *mess, int socketfd);
