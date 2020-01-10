@@ -74,13 +74,13 @@ int main(int argc, char **argv)
     case 1:
         do
         {
-            re = logIn(&mess, socketfd);
+            re = logIn(socketfd);
             if (re != SUCCESS)
                 printf("Login fail!\n\n");
 
         } while (re != SUCCESS);
         printf("\nLogin successful!\n");
-        booking(&mess, socketfd);
+        booking(socketfd);
         break;
     case 2:
 

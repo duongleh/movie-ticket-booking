@@ -4,7 +4,7 @@
 #include <sys/socket.h>
 #include "../lib/message.h"
 
-void sendListMovies(message *mess, int socketfd)
+void sendListMovies(int socketfd)
 {
     char *num = "4";
     char *name[] = {"Frozen", "Avenger", "IT", "Joker"};
@@ -17,8 +17,8 @@ void sendListMovies(message *mess, int socketfd)
     // memcpy(mess->movie.id, id, sizeof id);
     // strcpy(mess->movie.name, "FrozenAvengerITJoker");
     // memcpy(mess->movie.name_len, name_len, sizeof name_len);
-    strcpy(pkg, num);
-    send(socketfd, pkg, sizeof(pkg), 0);
+    // strcpy(pkg, num);
+    // send(socketfd, pkg, sizeof(pkg), 0);
     int x = atoi(num);
     for (int i = 0; i < x; i++)
     {

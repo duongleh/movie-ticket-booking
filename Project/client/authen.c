@@ -1,22 +1,27 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <sys/socket.h>
 #include "../lib/message.h"
 
-int requestLogIn(message *mess, int socketfd)
-{
-    mess->state = LOGIN;
-    send(socketfd, mess, sizeof(message), 0);
-    recv(socketfd, mess, sizeof(message), 0);
-    return mess->state;
-}
+#define MAXLINE 4096
 
-int logIn(message *mess, int socketfd)
+int logIn(int socketfd)
 {
-    memset(&mess->user, '\0', sizeof(mess->user));
+    char uname[MAXLINE], passwd[MAXLINE], pkg[256];
+
     printf("Account: ");
-    scanf("%s", mess->user.name);
+    scanf("%s", uname);
     printf("Password: ");
-    scanf("%s", mess->user.password);
-    return requestLogIn(mess, socketfd);
+    scanf("%s", passwd);
+    puts(uname);
+    puts(passwd);
+
+    sprintf(pkg, "%d", LOGIN);
+    send(socketfd, pkg, sizeof(pkg), 0);
+    send(socketfd, uname, MAXLINE, 0);
+    send(socketfd, passwd, MAXLINE, 0);
+
+    recv(socketfd, pkg, sizeof(pkg), 0);
+    return atoi(pkg);
 }

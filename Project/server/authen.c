@@ -3,9 +3,16 @@
 #include <sys/socket.h>
 #include "../lib/message.h"
 
-void logIn(message *mess, int socketfd)
+#define MAXLINE 4096
+
+void logIn(int socketfd)
 {
-    memset(mess, 0, sizeof(message));
-    mess->state = SUCCESS;
-    send(socketfd, mess, sizeof(message), 0);
+    char pkg[256], uname[MAXLINE], passwd[MAXLINE];
+    recv(socketfd, uname, sizeof(uname), 0);
+    recv(socketfd, passwd, sizeof(passwd), 0);
+    printf("%s\n", uname);
+    // puts(uname);
+    // puts(passwd);
+    sprintf(pkg, "%d", SUCCESS);
+    send(socketfd, pkg, sizeof(pkg), 0);
 }
