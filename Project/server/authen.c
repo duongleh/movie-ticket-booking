@@ -11,8 +11,6 @@ void logIn(int socketfd)
     recv(socketfd, uname, sizeof(uname), 0);
     recv(socketfd, passwd, sizeof(passwd), 0);
     printf("%s\n", uname);
-    // puts(uname);
-    // puts(passwd);
     sprintf(pkg, "%d", SUCCESS);
     send(socketfd, pkg, sizeof(pkg), 0);
 }

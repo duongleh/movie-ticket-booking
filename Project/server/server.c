@@ -74,7 +74,7 @@ int main(int argc, char **argv)
             close(socketfd);
             while (1)
             {
-                n = recv(connfd, mess, MAXLINE, 0);
+                n = recv(connfd, &state, sizeof(state), 0);
                 if (n < 0)
                 {
                     perror("Read error");
@@ -87,12 +87,10 @@ int main(int argc, char **argv)
                 // }
 
                 // printf("<%s:%d>: \t%d\n", inet_ntoa(cliaddr.sin_addr), ntohs(cliaddr.sin_port), mess.state);
-                state = atoi(mess);
                 switch (state)
                 {
                 case LOGIN:
-                    printf("[+]%s:%d - Request login from user", inet_ntoa(cliaddr.sin_addr), ntohs(cliaddr.sin_port));
-                    // printf("[+]%s:%d - Request login from user %s\n", inet_ntoa(cliaddr.sin_addr), ntohs(cliaddr.sin_port), mess.user.name);
+                    printf("[+]%s:%d - Request login from user ", inet_ntoa(cliaddr.sin_addr), ntohs(cliaddr.sin_port));
                     logIn(connfd);
                     printf("[+]%s:%d - Login successful\n", inet_ntoa(cliaddr.sin_addr), ntohs(cliaddr.sin_port));
                     break;
@@ -101,33 +99,34 @@ int main(int argc, char **argv)
                 case ORDERS:
                     break;
                 case BOOKING:
-                    // sprintf(mess, "%d", 4);
-                    // send(connfd, mess, sizeof(mess), 0);
                     printf("[+]%s:%d - Request booking function\n", inet_ntoa(cliaddr.sin_addr), ntohs(cliaddr.sin_port));
-                    sendListMovies(connfd);
                     break;
                 case MOVIE:
-                    // printf("[+]%s:%d - Choose movie %d\n", inet_ntoa(cliaddr.sin_addr), ntohs(cliaddr.sin_port), mess.movie.choice);
-                    sendListCinemas(connfd);
+                    sendListMovies(connfd);
+                    recv(connfd, mess, sizeof(mess), 0);
+                    printf("[+]%s:%d - Choose movie: %s\n", inet_ntoa(cliaddr.sin_addr), ntohs(cliaddr.sin_port), mess);
                     break;
                 case CINEMA:
-                    // printf("[+]%s:%d - Choose cinema %d\n", inet_ntoa(cliaddr.sin_addr), ntohs(cliaddr.sin_port), mess.cinema.choice);
-                    sendListTimes(connfd);
+                    sendListCinemas(connfd);
+                    recv(connfd, mess, sizeof(mess), 0);
+                    printf("[+]%s:%d - Choose cinema: %s\n", inet_ntoa(cliaddr.sin_addr), ntohs(cliaddr.sin_port), mess);
                     break;
                 case TIME:
-                    // printf("[+]%s:%d - Choose time %d\n", inet_ntoa(cliaddr.sin_addr), ntohs(cliaddr.sin_port), mess.time.choice);
-                    sendListSeats(connfd);
+                    sendListTimes(connfd);
+                    recv(connfd, mess, sizeof(mess), 0);
+                    printf("[+]%s:%d - Choose time: %s\n", inet_ntoa(cliaddr.sin_addr), ntohs(cliaddr.sin_port), mess);
                     break;
                 case SEAT:
+                    sendListSeats(connfd);
                     // printf("[+]%s:%d - Choose seat(s)", inet_ntoa(cliaddr.sin_addr), ntohs(cliaddr.sin_port));
                     // for (int i = 0; i < mess.seat.numChoice; i++)
                     // {
                     //     printf(" %d", mess.seat.choice[i]);
                     // }
                     // printf("\n");
-                    // sendListPayments(&mess, connfd);
                     break;
                 case PAY:
+                    // sendListPayments(&mess, connfd);
                     // printf("[+]%s:%d - Choose payment type %d\n", inet_ntoa(cliaddr.sin_addr), ntohs(cliaddr.sin_port), mess.pay.choice);
                     // if (mess.pay.choice == 2)
                     // {

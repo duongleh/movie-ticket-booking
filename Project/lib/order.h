@@ -6,7 +6,7 @@ typedef struct order
     int movie_id;
     char cinema[20];
     int cinema_id;
-    long time;
+    char time[20];
     int time_id;
     int seat_id[10];
     char pay[20];

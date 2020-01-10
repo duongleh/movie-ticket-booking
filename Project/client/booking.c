@@ -17,6 +17,8 @@ char valid_date[100];
 int ccv;
 
 message ticket;
+char pkg[256];
+int state;
 
 // void confirmOrder(message *mess, int socketfd)
 // {
@@ -132,122 +134,174 @@ message ticket;
 //     selectPayment(mess, socketfd);
 // }
 
-// void selectTime(message *mess, int socketfd)
-// {
-//     int select, start, valid = 0;
-//     char timeName[100];
+void receiveSeat(int socketfd)
+{
+    int row, col, count = 0;
+    char status;
 
-//     do
-//     {
-//         printf("\n");
-//         start = 0;
-//         for (int i = 0; i < mess->time.num; i++)
-//         {
-//             subStr(mess->time.name, timeName, start, start + mess->time.name_len[i] - 1);
-//             start += mess->time.name_len[i];
-//             printf("%d- %s\n", mess->time.id[i], timeName);
-//         }
-//         printf("Please enter the ID of time: ");
-//         scanf("%d", &select);
-//         if (valueInArr(select, mess->time.id, mess->time.num) == 0)
-//         {
-//             printf("ID is invalid !\n");
-//         }
-//         else
-//             valid = 1;
-//     } while (valid == 0);
-//     getName(mess->time.name, selectedTime, mess->time.num, select, mess->time.name_len, mess->time.id);
+    state = SEAT;
+    send(socketfd, &state, sizeof(state), 0);
+    recv(socketfd, &row, sizeof(row), 0);
+    recv(socketfd, &col, sizeof(col), 0);
 
-//     memset(mess, 0, sizeof(message));
-//     mess->state = TIME;
-//     mess->time.choice = select;
-//     send(socketfd, mess, sizeof(message), 0);
-//     recv(socketfd, mess, sizeof(message), 0);
-//     selectSeat(mess, socketfd);
-// }
+    ticket.seat.row = (int)row;
+    ticket.seat.col = (int)col;
+    printf("3 %d %d\n", row, col);
+    for (int i = 0; i < row * col; i++)
+    {
+        recv(socketfd, pkg, sizeof(pkg), 0);
+        ticket.seat.status[i] = atoi(pkg);
+        recv(socketfd, pkg, sizeof(pkg), 0);
+        ticket.seat.id[i] = atoi(pkg);
+    }
+    for (int i = 0; i < ticket.seat.num; i++)
+    {
+        status = ticket.seat.status[i] == 0 ? '-' : 'x';
+        printf("%2d: %c\t", ticket.seat.id[i], status);
+        count++;
+        if (count == ticket.seat.col)
+        {
+            count = 0;
+            printf("\n");
+        }
+    }
 
-// void selectCinema(message *mess, int socketfd)
-// {
-//     int select, start, valid = 0;
-//     char cinemaName[100];
+    // selectSeat(socketfd);
+}
 
-//     do
-//     {
-//         printf("\n");
-//         start = 0;
-//         for (int i = 0; i < mess->cinema.num; i++)
-//         {
-//             subStr(mess->cinema.name, cinemaName, start, start + mess->cinema.name_len[i] - 1);
-//             start += mess->cinema.name_len[i];
-//             printf("%d- %s\n", mess->cinema.id[i], cinemaName);
-//         }
-//         printf("Please enter the ID of cinema: ");
-//         scanf("%d", &select);
-//         if (valueInArr(select, mess->cinema.id, mess->cinema.num) == 0)
-//         {
-//             printf("ID is invalid !\n");
-//         }
-//         else
-//             valid = 1;
-//     } while (valid == 0);
+void selectTime(int socketfd)
+{
+    int select, valid = 0, indx;
 
-//     getName(mess->cinema.name, selectedCinema, mess->cinema.num, select, mess->cinema.name_len, mess->cinema.id);
+    do
+    {
+        printf("\n");
+        for (int i = 0; i < ticket.time.num; i++)
+        {
+            printf("%d: %s\n", ticket.time.id[i], ticket.time.name[i]);
+        }
+        printf("Please enter the ID of time: ");
+        scanf("%d", &select);
+        if (valueInArr(select, ticket.time.id, ticket.time.num) == 0)
+        {
+            printf("ID is invalid !\n");
+        }
+        else
+            valid = 1;
+    } while (valid == 0);
 
-//     memset(mess, 0, sizeof(message));
-//     mess->state = CINEMA;
-//     mess->cinema.choice = select;
-//     send(socketfd, mess, sizeof(message), 0);
-//     recv(socketfd, mess, sizeof(message), 0);
-//     selectTime(mess, socketfd);
-// }
+    indx = getIndex(ticket.time.id, ticket.time.num, select);
+    ticket.order.time_id = select;
+    strcpy(ticket.order.time, ticket.time.name[indx]);
+    strcpy(pkg, ticket.order.time);
+    send(socketfd, pkg, sizeof(pkg), 0);
 
-// void selectMovie(message *mess, int socketfd)
-// {
-//     int select, start, valid = 0;
-//     char movieName[100];
+    receiveSeat(socketfd);
+}
 
-//     do
-//     {
-//         printf("\n");
-//         // start = 0;
-//         // for (int i = 0; i < mess->movie.num; i++)
-//         // {
-//         //     subStr(mess->movie.name, movieName, start, start + mess->movie.name_len[i] - 1);
-//         //     start += mess->movie.name_len[i];
-//         //     printf("%d- %s\n", mess->movie.id[i], movieName);
-//         // }
-//         for (int i = 0; i < ticket.movie.num; i++)
-//         {
-//             printf("%d: %s\n", ticket.movie.id[i], ticket.movie.name[i]);
-//         }
-//         printf("Please enter the ID of movie: ");
-//         scanf("%d", &select);
-//         if (valueInArr(select, ticket.movie.id, ticket.movie.num) == 0)
-//         {
-//             printf("ID is invalid !\n");
-//         }
-//         else
-//             valid = 1;
-//     } while (valid == 0);
+void receiveTime(int socketfd)
+{
+    int num;
+    state = TIME;
+    send(socketfd, &state, sizeof(state), 0);
+    recv(socketfd, &num, sizeof(num), 0);
+    ticket.time.num = (int)num;
+    for (int i = 0; i < ticket.time.num; i++)
+    {
+        recv(socketfd, pkg, sizeof(pkg), 0);
+        strcpy(ticket.time.name[i], pkg);
+        recv(socketfd, pkg, sizeof(pkg), 0);
+        ticket.time.id[i] = atoi(pkg);
+    }
 
-//     getName(mess->movie.name, selectedMovie, mess->movie.num, select, mess->movie.name_len, mess->movie.id);
+    selectTime(socketfd);
+}
 
-//     memset(mess, 0, sizeof(message));
-//     mess->state = MOVIE;
-//     mess->movie.choice = select;
-//     send(socketfd, mess, sizeof(message), 0);
-//     recv(socketfd, mess, sizeof(message), 0);
-//     selectCinema(mess, socketfd);
-// }
+void selectCinema(int socketfd)
+{
+    int select, valid = 0, indx;
+
+    do
+    {
+        printf("\n");
+        for (int i = 0; i < ticket.cinema.num; i++)
+        {
+            printf("%d: %s\n", ticket.cinema.id[i], ticket.cinema.name[i]);
+        }
+        printf("Please enter the ID of cinema: ");
+        scanf("%d", &select);
+        if (valueInArr(select, ticket.cinema.id, ticket.cinema.num) == 0)
+        {
+            printf("ID is invalid !\n");
+        }
+        else
+            valid = 1;
+    } while (valid == 0);
+
+    indx = getIndex(ticket.cinema.id, ticket.cinema.num, select);
+    ticket.order.cinema_id = select;
+    strcpy(ticket.order.cinema, ticket.cinema.name[indx]);
+    strcpy(pkg, ticket.order.cinema);
+    send(socketfd, pkg, sizeof(pkg), 0);
+
+    receiveTime(socketfd);
+}
+
+void receiveCinema(int socketfd)
+{
+    int num;
+    state = CINEMA;
+    send(socketfd, &state, sizeof(state), 0);
+    recv(socketfd, &num, sizeof(num), 0);
+    ticket.cinema.num = (int)num;
+    for (int i = 0; i < ticket.cinema.num; i++)
+    {
+        recv(socketfd, pkg, sizeof(pkg), 0);
+        strcpy(ticket.cinema.name[i], pkg);
+        recv(socketfd, pkg, sizeof(pkg), 0);
+        ticket.cinema.id[i] = atoi(pkg);
+    }
+
+    selectCinema(socketfd);
+}
+
+void selectMovie(int socketfd)
+{
+    int select, valid = 0, indx;
+    do
+    {
+        printf("\n");
+        for (int i = 0; i < ticket.movie.num; i++)
+        {
+            printf("%d: %s\n", ticket.movie.id[i], ticket.movie.name[i]);
+        }
+        printf("Please enter the ID of movie: ");
+        scanf("%d", &select);
+        if (valueInArr(select, ticket.movie.id, ticket.movie.num) == 0)
+        {
+            printf("ID is invalid !\n");
+        }
+        else
+            valid = 1;
+    } while (valid == 0);
+
+    indx = getIndex(ticket.movie.id, ticket.movie.num, select);
+    ticket.order.movie_id = select;
+    strcpy(ticket.order.movie, ticket.movie.name[indx]);
+    strcpy(pkg, ticket.order.movie);
+
+    send(socketfd, pkg, sizeof(pkg), 0);
+    receiveCinema(socketfd);
+}
 
 void receiveMovie(int socketfd)
 {
-    char pkg[256];
+    int num;
+    state = MOVIE;
 
-    sprintf(pkg, "%d", BOOKING);
-    send(socketfd, pkg, sizeof(pkg), 0);
-    recv(socketfd, pkg, sizeof(pkg), 0);
-    ticket.movie.num = atoi(pkg);
+    send(socketfd, &state, sizeof(state), 0);
+    recv(socketfd, &num, sizeof(num), 0);
+    ticket.movie.num = (int)num;
     for (int i = 0; i < ticket.movie.num; i++)
     {
         recv(socketfd, pkg, sizeof(pkg), 0);
@@ -255,8 +309,7 @@ void receiveMovie(int socketfd)
         recv(socketfd, pkg, sizeof(pkg), 0);
         ticket.movie.id[i] = atoi(pkg);
     }
-
-    // selectMovie(mess, socketfd);
+    selectMovie(socketfd);
 }
 
 void booking(int socketfd)
@@ -271,6 +324,8 @@ void booking(int socketfd)
     } while (choice < 1 || choice > 2);
     if (choice == 1)
     {
+        state = BOOKING;
+        send(socketfd, &state, sizeof(state), 0);
         receiveMovie(socketfd);
     }
 }

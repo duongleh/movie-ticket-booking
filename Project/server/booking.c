@@ -4,23 +4,17 @@
 #include <sys/socket.h>
 #include "../lib/message.h"
 
+char pkg[256];
+
 void sendListMovies(int socketfd)
 {
-    char *num = "4";
+    int num = 4;
     char *name[] = {"Frozen", "Avenger", "IT", "Joker"};
     char *id[] = {"1", "2", "4", "9"};
-    // int name_len[] = {6, 7, 2, 5};
 
-    char pkg[256];
-    // memset(mess, 0, sizeof(message));
-    // mess->movie.num = 4;
-    // memcpy(mess->movie.id, id, sizeof id);
-    // strcpy(mess->movie.name, "FrozenAvengerITJoker");
-    // memcpy(mess->movie.name_len, name_len, sizeof name_len);
-    // strcpy(pkg, num);
-    // send(socketfd, pkg, sizeof(pkg), 0);
-    int x = atoi(num);
-    for (int i = 0; i < x; i++)
+    send(socketfd, &num, sizeof(num), 0);
+
+    for (int i = 0; i < num; i++)
     {
         strcpy(pkg, name[i]);
         send(socketfd, pkg, sizeof(pkg), 0);
@@ -29,43 +23,56 @@ void sendListMovies(int socketfd)
     }
 }
 
-void sendListCinemas(message *mess, int socketfd)
+void sendListCinemas(int socketfd)
 {
-    int id[] = {11, 23, 37};
-    int name_len[] = {12, 12, 14};
+    int num = 3;
+    char *name[] = {"CGV Ba Trieu", "Rap Quoc Gia", "Lotte Keangnam"};
+    char *id[] = {"17", "24", "36"};
+    send(socketfd, &num, sizeof(num), 0);
 
-    memset(mess, 0, sizeof(message));
-    mess->cinema.num = 3;
-    memcpy(mess->cinema.id, id, sizeof id);
-    strcpy(mess->cinema.name, "CGV Ba TrieuRap Quoc GiaLotte Keangnam");
-    memcpy(mess->cinema.name_len, name_len, sizeof name_len);
-    send(socketfd, mess, sizeof(message), 0);
+    for (int i = 0; i < num; i++)
+    {
+        strcpy(pkg, name[i]);
+        send(socketfd, pkg, sizeof(pkg), 0);
+        strcpy(pkg, id[i]);
+        send(socketfd, pkg, sizeof(pkg), 0);
+    }
 }
 
-void sendListTimes(message *mess, int socketfd)
+void sendListTimes(int socketfd)
 {
-    int id[] = {1, 2, 3, 4};
-    int name_len[] = {5, 5, 5, 5};
+    int num = 4;
+    char *name[] = {"08:30", "14:50", "19:15", "23:25"};
+    char *id[] = {"1", "2", "3", "4"};
 
-    memset(mess, 0, sizeof(message));
-    mess->time.num = 4;
-    memcpy(mess->time.id, id, sizeof id);
-    strcpy(mess->time.name, "08:3014:5019:1523:25");
-    memcpy(mess->time.name_len, name_len, sizeof name_len);
-    send(socketfd, mess, sizeof(message), 0);
+    send(socketfd, &num, sizeof(num), 0);
+
+    for (int i = 0; i < num; i++)
+    {
+        strcpy(pkg, name[i]);
+        send(socketfd, pkg, sizeof(pkg), 0);
+        strcpy(pkg, id[i]);
+        send(socketfd, pkg, sizeof(pkg), 0);
+    }
 }
 
-void sendListSeats(message *mess, int socketfd)
+void sendListSeats(int socketfd)
 {
-    int id[] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
-    int status[] = {0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 1, 0};
+    int row = 3;
+    int col = 4;
+    char *status[] = {"0", "0", "0", "0", "0", "1", "1", "0", "0", "1", "1", "0"};
+    char *id[] = {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"};
 
-    memset(mess, 0, sizeof(message));
-    mess->seat.row = 3;
-    mess->seat.col = 4;
-    memcpy(mess->seat.id, id, sizeof id);
-    memcpy(mess->seat.status, status, sizeof status);
-    send(socketfd, mess, sizeof(message), 0);
+    send(socketfd, &row, sizeof(row), 0);
+    send(socketfd, &col, sizeof(col), 0);
+
+    for (int i = 0; i < row * col; i++)
+    {
+        strcpy(pkg, status[i]);
+        send(socketfd, pkg, sizeof(pkg), 0);
+        strcpy(pkg, id[i]);
+        send(socketfd, pkg, sizeof(pkg), 0);
+    }
 }
 
 void sendListPayments(message *mess, int socketfd)

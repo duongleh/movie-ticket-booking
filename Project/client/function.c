@@ -38,3 +38,17 @@ void getName(char *str, char *buffer, int size, int selectId, int name_len[], in
         start += name_len[i];
     }
 }
+
+int getIndex(int *arr, int num, int select)
+{
+    int indx;
+    for (int i = 0; i < num; i++)
+    {
+        if (arr[i] == select)
+        {
+            indx = i;
+            break;
+        }
+    }
+    return indx;
+}
