@@ -2,15 +2,17 @@
 #define BOOKING_H
 #include "../lib/message.h"
 
-void booking(int socketfd);
-void receiveMovie(int socketfd);
-void selectMovie(int socketfd);
-void receiveCinema(int socketfd);
-void selectCinema(int socketfd);
-void receiveTime(int socketfd);
-void selectTime(int socketfd);
-void receiveSeat(int socketfd);
-void selectSeat(int socketfd);
-void selectPayment(int socketfd);
-void confirmOrder(int socketfd);
+void booking(int fd, char *uname);
+void receiveMovie();
+void selectMovie();
+void receiveCinema();
+void selectCinema();
+void receiveTime();
+void selectTime();
+void receiveSeat();
+void selectSeat();
+void receivePayment();
+void selectPayment();
+void confirmOrder();
+void printTicket();
 #endif

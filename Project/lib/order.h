@@ -2,14 +2,22 @@
 #define ORDER_H
 typedef struct order
 {
-    char movie[20];
+    char uname[100];
+
     int movie_id;
-    char cinema[20];
+    char movie[20];
+
     int cinema_id;
-    char time[20];
+    char cinema[20];
+
     int time_id;
+    char time[20];
+
+    int seat_num;
     int seat_id[10];
-    char pay[20];
+
+    int total;
+    char pay[50];
     int pay_id;
     char card[20];
     int ccv;

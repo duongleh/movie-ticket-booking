@@ -3,93 +3,94 @@
 #include <string.h>
 #include <sys/socket.h>
 #include "../lib/message.h"
+#include "../lib/function.h"
 
-char pkg[256];
+int socketfd;
 
-void sendListMovies(int socketfd)
+void setFd(int fd)
+{
+    socketfd = fd;
+}
+
+void sendListMovies()
 {
     int num = 4;
+    int id[] = {1, 2, 4, 9};
     char *name[] = {"Frozen", "Avenger", "IT", "Joker"};
-    char *id[] = {"1", "2", "4", "9"};
 
-    send(socketfd, &num, sizeof(num), 0);
+    sendInt(socketfd, num);
 
     for (int i = 0; i < num; i++)
     {
-        strcpy(pkg, name[i]);
-        send(socketfd, pkg, sizeof(pkg), 0);
-        strcpy(pkg, id[i]);
-        send(socketfd, pkg, sizeof(pkg), 0);
+        sendInt(socketfd, id[i]);
+        sendStr(socketfd, name[i]);
     }
 }
 
-void sendListCinemas(int socketfd)
+void sendListCinemas()
 {
     int num = 3;
+    char id[] = {17, 24, 36};
     char *name[] = {"CGV Ba Trieu", "Rap Quoc Gia", "Lotte Keangnam"};
-    char *id[] = {"17", "24", "36"};
-    send(socketfd, &num, sizeof(num), 0);
+
+    sendInt(socketfd, num);
 
     for (int i = 0; i < num; i++)
     {
-        strcpy(pkg, name[i]);
-        send(socketfd, pkg, sizeof(pkg), 0);
-        strcpy(pkg, id[i]);
-        send(socketfd, pkg, sizeof(pkg), 0);
+        sendInt(socketfd, id[i]);
+        sendStr(socketfd, name[i]);
     }
 }
 
-void sendListTimes(int socketfd)
+void sendListTimes()
 {
     int num = 4;
+    char id[] = {1, 2, 3, 4};
     char *name[] = {"08:30", "14:50", "19:15", "23:25"};
-    char *id[] = {"1", "2", "3", "4"};
 
-    send(socketfd, &num, sizeof(num), 0);
+    sendInt(socketfd, num);
 
     for (int i = 0; i < num; i++)
     {
-        strcpy(pkg, name[i]);
-        send(socketfd, pkg, sizeof(pkg), 0);
-        strcpy(pkg, id[i]);
-        send(socketfd, pkg, sizeof(pkg), 0);
+        sendInt(socketfd, id[i]);
+        sendStr(socketfd, name[i]);
     }
 }
 
-void sendListSeats(int socketfd)
+void sendListSeats()
 {
     int row = 3;
     int col = 4;
-    char *status[] = {"0", "0", "0", "0", "0", "1", "1", "0", "0", "1", "1", "0"};
-    char *id[] = {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"};
+    char id[] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    char status[] = {0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 1, 0};
 
-    send(socketfd, &row, sizeof(row), 0);
-    send(socketfd, &col, sizeof(col), 0);
+    sendInt(socketfd, row);
+    sendInt(socketfd, col);
 
     for (int i = 0; i < row * col; i++)
     {
-        strcpy(pkg, status[i]);
-        send(socketfd, pkg, sizeof(pkg), 0);
-        strcpy(pkg, id[i]);
-        send(socketfd, pkg, sizeof(pkg), 0);
+        sendInt(socketfd, id[i]);
+        sendInt(socketfd, status[i]);
     }
 }
 
-void sendListPayments(message *mess, int socketfd)
+void sendListPayments(int fare)
 {
+    int num = 2;
     int id[] = {1, 2};
-    int name_len[] = {28, 17};
+    char *name[] = {"Thanh toan truc tiep tai rap", "Thanh toan online"};
 
-    memset(mess, 0, sizeof(message));
-    mess->pay.num = 2;
-    memcpy(mess->pay.id, id, sizeof id);
-    strcpy(mess->pay.name, "Thanh toan truc tiep tai rapThanh toan online");
-    memcpy(mess->pay.name_len, name_len, sizeof name_len);
-    send(socketfd, mess, sizeof(message), 0);
+    sendInt(socketfd, fare);
+    sendInt(socketfd, num);
+    for (int i = 0; i < num; i++)
+    {
+        sendInt(socketfd, id[i]);
+        sendStr(socketfd, name[i]);
+    }
 }
 
-void confirmOrder(message *mess, int socketfd)
+void confirmOrder()
 {
-    memset(mess, 0, sizeof(message));
-    send(socketfd, mess, sizeof(message), 0);
+    // TODO: check the validity of the order
+    sendInt(socketfd, SUCCESS);
 }

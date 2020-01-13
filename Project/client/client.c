@@ -5,7 +5,7 @@
 #include <netinet/in.h>
 #include <string.h>
 #include <arpa/inet.h>
-#include <unistd.h> // for close
+#include <unistd.h>
 #include "../lib/message.h"
 #include "authen.h"
 #include "booking.h"
@@ -60,6 +60,7 @@ int menuAuthen()
 int main(int argc, char **argv)
 {
     int choice = 0, re;
+    char uname[MAXLINE];
     if (argc != 2)
     {
         perror("[-]Missing IP address of the server");
@@ -74,13 +75,13 @@ int main(int argc, char **argv)
     case 1:
         do
         {
-            re = logIn(socketfd);
+            re = logIn(socketfd, uname);
             if (re != SUCCESS)
                 printf("Login fail!\n\n");
 
         } while (re != SUCCESS);
         printf("\nLogin successful!\n");
-        booking(socketfd);
+        booking(socketfd, uname);
         break;
     case 2:
 
@@ -88,28 +89,6 @@ int main(int argc, char **argv)
     default:
         break;
     }
-    // printf("Client: \t");
-    // scanf("%s", &buffer[0]);
-    // send(socketfd, buffer, MAXLINE, 0);
-
-    // if (strcmp(buffer, ":exit") == 0)
-    // {
-    //     close(socketfd);
-    //     printf("[-]Disconnected from server.\n");
-    //     exit(1);
-    // }
-
     // memset(&buffer, 0, sizeof(buffer));
-
-    // if (recv(socketfd, buffer, MAXLINE, 0) < 0)
-    // {
-    //     printf("[-]Error in receiving data.\n");
-    // }
-    // else
-    // {
-    //     printf("Server: \t%s\n", buffer);
-    // }
-    // memset(&buffer, 0, sizeof(buffer));
-
     return 0;
 }

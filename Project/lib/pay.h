@@ -4,9 +4,7 @@ typedef struct pay
 {
     int num;
     int id[10];
-    char name[256];
-    int name_len[10];
-    int choice;
+    char name[10][256];
     char card[20];
     int ccv;
     char valid_date[10];

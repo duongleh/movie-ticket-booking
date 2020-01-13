@@ -2,5 +2,5 @@
 #define AUTHEN_H
 #include "../lib/message.h"
 
-int logIn(int socketfd);
+int logIn(int socketfd, char *uname);
 #endif

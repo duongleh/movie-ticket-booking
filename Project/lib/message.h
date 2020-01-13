@@ -25,9 +25,10 @@ enum
     CONFIRM
 };
 
+#define FARE 50000
+
 typedef struct message
 {
-    int state;
     user user;
     movie movie;
     cinema cinema;

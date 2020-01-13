@@ -1,6 +1,7 @@
 CFLAGS = -c -Wall
 CC = gcc
 LIBS =  -lm 
+LIB = ../lib
 
 all: client
 
@@ -16,8 +17,8 @@ authen.o: authen.c
 booking.o: booking.c
 	${CC} ${CFLAGS} booking.c
 
-function.o: function.c
-	${CC} ${CFLAGS} function.c
+function.o: ${LIB}/function.c
+	${CC} ${CFLAGS} ${LIB}/function.c
 
 clean:
 	rm -f *.o *~
