@@ -102,8 +102,19 @@ int main(int argc, char **argv)
         recv(socketfd, &idx, sizeof(idx), 0);
         printf("%d - ", ntohl(idx));
         recv(socketfd, &len, sizeof(len), 0);
+        memset(&pkg, 0, sizeof(pkg));
         recv(socketfd, pkg, ntohl(len), 0);
         printf("%s\n", pkg);
     }
+
+    idx = htonl(9);
+    send(socketfd, &idx, sizeof(idx), 0);
+
+    memset(&pkg, 0, sizeof(pkg));
+    strcpy(pkg, "Joker");
+    len = htonl(strlen(pkg));
+    send(socketfd, &len, sizeof(len), 0);
+    puts(pkg);
+    send(socketfd, pkg, strlen(pkg), 0);
     return 0;
 }

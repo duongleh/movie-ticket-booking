@@ -79,10 +79,11 @@ int main(int argc, char **argv)
 
     int num = 4, idx, len;
     char *name[] = {"Frozen", "Avenger", "IT", "Joker"};
-    char id[] = {1, 2, 4, 9};
+    int id[] = {1, 2, 4, 9};
 
     struct sockaddr_in cliaddr;
     struct sigaction new_action, old_action;
+
     new_action.sa_handler = termination_handler;
     sigemptyset(&new_action.sa_mask);
     new_action.sa_flags = 0;
@@ -111,6 +112,12 @@ int main(int argc, char **argv)
                     exit(1);
                 }
 
+                if (n == 0)
+                {
+                    printf("[+]%s:%d - Disconnected\n", inet_ntoa(cliaddr.sin_addr), ntohs(cliaddr.sin_port));
+                    break;
+                }
+
                 state = ntohl(state);
                 // printf("%d\n", state);
                 switch (state)
@@ -129,23 +136,33 @@ int main(int argc, char **argv)
 
                     break;
                 case BOOKING:
-                    printf("[+]%s:%d - Request booking function\n", inet_ntoa(cliaddr.sin_addr), ntohs(cliaddr.sin_port));
+                    printf("[+]%s:%d - Request BOOKING\n", inet_ntoa(cliaddr.sin_addr), ntohs(cliaddr.sin_port));
                     break;
                 case MOVIE:
+                    printf("[+]%s:%d - Request MOVIE\n", inet_ntoa(cliaddr.sin_addr), ntohs(cliaddr.sin_port));
+
                     num = htonl(num);
                     send(connfd, &num, sizeof(num), 0);
-
+                    num = ntohl(num);
                     for (int i = 0; i < num; i++)
                     {
                         idx = htonl(id[i]);
                         send(connfd, &idx, sizeof(idx), 0);
                         len = htonl(strlen(name[i]));
                         send(connfd, &len, sizeof(len), 0);
+                        memset(&pkg, 0, sizeof(pkg));
                         strcpy(pkg, name[i]);
                         send(connfd, pkg, strlen(pkg), 0);
                     }
-                    // recv(connfd, mess, sizeof(mess), 0);
-                    // printf("[+]%s:%d - Choose movie: %s\n", inet_ntoa(cliaddr.sin_addr), ntohs(cliaddr.sin_port), mess);
+                    printf("[+]%s:%d - Sent MOVIE\n", inet_ntoa(cliaddr.sin_addr), ntohs(cliaddr.sin_port));
+
+                    recv(connfd, &idx, sizeof(idx), 0);
+
+                    recv(connfd, &len, sizeof(len), 0);
+                    memset(&pkg, 0, sizeof(pkg));
+                    recv(connfd, pkg, ntohl(len), 0);
+                    printf("[+]%s:%d - Choose movie: %s - %u\n", inet_ntoa(cliaddr.sin_addr), ntohs(cliaddr.sin_port), pkg, ntohl(idx));
+                    break;
                 default:
                     break;
                 }
