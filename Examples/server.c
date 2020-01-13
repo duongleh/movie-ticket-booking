@@ -70,6 +70,40 @@ void termination_handler(int signum)
     child_process_running = 0;
 }
 
+void sendStr(int fd, char *str)
+{
+    int len;
+    len = htonl(strlen(str));
+    send(fd, &len, sizeof(len), 0); // Send length of the string
+    send(fd, str, strlen(str), 0);  // Send the string
+}
+
+void recvStr(int fd, char *str)
+{
+    int len = 0;
+    char content[MAXLINE];
+
+    memset(&content, 0, MAXLINE);
+    recv(fd, &len, sizeof(len), 0);   // Receive length of the string
+    recv(fd, content, ntohl(len), 0); // Receive the string
+    strcpy(str, content);
+    // printf("%s\n", str);
+}
+
+void sendInt(int fd, int i)
+{
+    int content = htonl(i);
+    send(fd, &content, sizeof(content), 0);
+}
+
+int recvInt(int fd)
+{
+    int num;
+    recv(fd, &num, sizeof(num), 0);
+    // printf("%d\n", ntohl(num));
+    return ntohl(num);
+}
+
 int main(int argc, char **argv)
 {
     int connfd, n, state = 0;
@@ -98,7 +132,7 @@ int main(int argc, char **argv)
         {
             exit(1);
         }
-        printf("[+]%s:%d - Connection accepted\n", inet_ntoa(cliaddr.sin_addr), ntohs(cliaddr.sin_port));
+        printf("\n[+]%s:%d - Connection accepted\n", inet_ntoa(cliaddr.sin_addr), ntohs(cliaddr.sin_port));
 
         if ((childpid = fork()) == 0)
         {
@@ -124,14 +158,11 @@ int main(int argc, char **argv)
                 {
                 case LOGIN:
                     printf("[+]%s:%d - Request login from user ", inet_ntoa(cliaddr.sin_addr), ntohs(cliaddr.sin_port));
-                    recv(connfd, &len, sizeof(len), 0);
-                    recv(connfd, uname, ntohl(len), 0);
-                    recv(connfd, &len, sizeof(len), 0);
-                    recv(connfd, passwd, ntohl(len), 0);
+                    recvStr(connfd, uname);
+                    recvStr(connfd, passwd);
                     puts(uname);
                     puts(passwd);
-                    state = SUCCESS;
-                    send(connfd, &state, sizeof(state), 0);
+                    sendInt(connfd, SUCCESS);
                     printf("[+]%s:%d - Login successful\n", inet_ntoa(cliaddr.sin_addr), ntohs(cliaddr.sin_port));
 
                     break;
@@ -140,28 +171,17 @@ int main(int argc, char **argv)
                     break;
                 case MOVIE:
                     printf("[+]%s:%d - Request MOVIE\n", inet_ntoa(cliaddr.sin_addr), ntohs(cliaddr.sin_port));
-
-                    num = htonl(num);
-                    send(connfd, &num, sizeof(num), 0);
-                    num = ntohl(num);
+                    sendInt(connfd, num);
                     for (int i = 0; i < num; i++)
                     {
-                        idx = htonl(id[i]);
-                        send(connfd, &idx, sizeof(idx), 0);
-                        len = htonl(strlen(name[i]));
-                        send(connfd, &len, sizeof(len), 0);
-                        memset(&pkg, 0, sizeof(pkg));
-                        strcpy(pkg, name[i]);
-                        send(connfd, pkg, strlen(pkg), 0);
+                        sendInt(connfd, id[i]);
+                        sendStr(connfd, name[i]);
                     }
                     printf("[+]%s:%d - Sent MOVIE\n", inet_ntoa(cliaddr.sin_addr), ntohs(cliaddr.sin_port));
 
-                    recv(connfd, &idx, sizeof(idx), 0);
-
-                    recv(connfd, &len, sizeof(len), 0);
-                    memset(&pkg, 0, sizeof(pkg));
-                    recv(connfd, pkg, ntohl(len), 0);
-                    printf("[+]%s:%d - Choose movie: %s - %u\n", inet_ntoa(cliaddr.sin_addr), ntohs(cliaddr.sin_port), pkg, ntohl(idx));
+                    idx = recvInt(connfd);
+                    recvStr(connfd, pkg);
+                    printf("[+]%s:%d - Choose movie: %s - %u\n", inet_ntoa(cliaddr.sin_addr), ntohs(cliaddr.sin_port), pkg, idx);
                     break;
                 default:
                     break;

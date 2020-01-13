@@ -27,6 +27,40 @@ enum
     CONFIRM
 };
 
+void sendStr(int fd, char *str)
+{
+    int len;
+    len = htonl(strlen(str));
+    send(fd, &len, sizeof(len), 0); // Send len of the string
+    send(fd, str, strlen(str), 0);  // Send the string
+}
+
+void recvStr(int fd, char *str)
+{
+    int len = 0;
+    char content[MAXLINE];
+
+    memset(&content, 0, MAXLINE);
+    recv(fd, &len, sizeof(len), 0);
+    recv(fd, content, ntohl(len), 0);
+    strcpy(str, content);
+    // printf("%s\n", str);
+}
+
+void sendInt(int fd, int i)
+{
+    int content = htonl(i);
+    send(fd, &content, sizeof(content), 0);
+}
+
+int recvInt(int fd)
+{
+    int num;
+    recv(fd, &num, sizeof(num), 0);
+    // printf("%d\n", ntohl(num));
+    return ntohl(num);
+}
+
 void connectToServer(char *ip)
 {
     struct sockaddr_in servaddr;
@@ -72,49 +106,31 @@ int main(int argc, char **argv)
     printf("Password: ");
     scanf("%s", passwd);
 
-    state = htonl(LOGIN);
-    send(socketfd, &state, sizeof(state), 0);
+    sendInt(socketfd, LOGIN);
 
-    len = htonl(strlen(uname));
-    send(socketfd, &len, sizeof(len), 0);
-    send(socketfd, uname, strlen(uname), 0);
+    sendStr(socketfd, uname);
+    sendStr(socketfd, passwd);
 
-    len = htonl(strlen(passwd));
-    send(socketfd, &len, sizeof(len), 0);
-    send(socketfd, passwd, strlen(passwd), 0);
+    re = recvInt(socketfd);
 
-    recv(socketfd, &re, sizeof(re), 0);
-    printf("%d\n", re);
-
-    state = htonl(BOOKING);
-    send(socketfd, &state, sizeof(state), 0);
-
-    // MOVIE
-    state = htonl(MOVIE);
-    send(socketfd, &state, sizeof(state), 0);
-
-    recv(socketfd, &num, sizeof(num), 0);
-    num = ntohl(num);
-    printf("%d\n", num);
-
-    for (int i = 0; i < num; i++)
+    if (re == SUCCESS)
     {
-        recv(socketfd, &idx, sizeof(idx), 0);
-        printf("%d - ", ntohl(idx));
-        recv(socketfd, &len, sizeof(len), 0);
-        memset(&pkg, 0, sizeof(pkg));
-        recv(socketfd, pkg, ntohl(len), 0);
-        printf("%s\n", pkg);
+        sendInt(socketfd, BOOKING);
+
+        sendInt(socketfd, MOVIE);
+
+        num = recvInt(socketfd);
+
+        for (int i = 0; i < num; i++)
+        {
+            idx = recvInt(socketfd);
+            printf("%d - ", idx);
+            recvStr(socketfd, pkg);
+            printf("%s\n", pkg);
+        }
+
+        sendInt(socketfd, 9);
+        sendStr(socketfd, "Joker");
     }
-
-    idx = htonl(9);
-    send(socketfd, &idx, sizeof(idx), 0);
-
-    memset(&pkg, 0, sizeof(pkg));
-    strcpy(pkg, "Joker");
-    len = htonl(strlen(pkg));
-    send(socketfd, &len, sizeof(len), 0);
-    puts(pkg);
-    send(socketfd, pkg, strlen(pkg), 0);
     return 0;
 }
