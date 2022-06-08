@@ -34,8 +34,8 @@ int main(int argc, char **argv)
     for (;;)
     {
 
-        clilen = sizeof(cliaddr);
-        connfd = accept(listenfd, (struct sockaddr *)&cliaddr, &clilen);
+        client = sizeof(cliaddr);
+        connfd = accept(listenfd, (struct sockaddr *)&cliaddr, &client);
         printf("%s\n", "Received request...");
 
         while ((n = recv(connfd, buf, MAXLINE, 0)) > 0)
